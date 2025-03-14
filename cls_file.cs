@@ -41,8 +41,10 @@
             FILE_INFO fileInfo = new();
             fileInfo.source_FileName = filePath;
             string designCode = System.IO.File.ReadAllText(filePath);
-            string[] line_code = designCode.Split(Environment.NewLine);
-            int mode = 0;
+			// Normalize line endings to Windows (CRLF)
+			designCode = designCode.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", "\r\n");
+			string[] line_code = designCode.Split(new[] { "\r\n" }, StringSplitOptions.None);
+			int mode = 0;
 
             for (int i = 0; i < line_code.Length; i++)
             {
@@ -73,8 +75,8 @@
                 if (mode == 3)
                 {
                     Read_Ctrl(line_code[i], fileInfo);
-                    if (line_code[i + 1].Contains("this.ResumeLayout(false)")) { mode = 4; }
-                }
+					if (i + 1 < line_code.Length && line_code[i + 1].Contains("this.ResumeLayout(false)")) { mode = 4; }
+				}
             }
             return fileInfo;
         }
